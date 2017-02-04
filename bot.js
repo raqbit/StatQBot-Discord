@@ -52,7 +52,7 @@ function upCharCount(username, msg) {
     else {
         charCount[username] = msg.length;
     }
-    
+
     const charCountRef = dbRef.child('charCount');
     charCountRef.set(charCount);
 }
@@ -98,9 +98,12 @@ client.on('message', message => {
         var username = message.author.username;
         var content = message.content;
     }
-    upMsgCount(username);
-    upCharCount(username, content);
-    upWordCount(content);
+
+    if (!message.author.bot) {
+        upMsgCount(username);
+        upCharCount(username, content);
+        upWordCount(content);
+    }
 });
 
 client.login(discordKey.key);
