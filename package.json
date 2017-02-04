@@ -1,6 +1,6 @@
 {
   "name": "StatQBot-Discord",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "description": "Statistics bot for Discord",
   "main": "bot.js",
   "author": "Raqbit <raqbit@outlook.com>",

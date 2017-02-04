@@ -21,9 +21,14 @@ dbRef.on("value", gotData, errorData);
 
 function gotData(snapshot) {
     var data = snapshot.val();
-    charCount = data.charCount;
-    msgCount = data.msgCount;
-    wordCount = data.wordCount;
+    if (data) {
+        if (data.charCount)
+            charCount = data.charCount;
+        if (data.msgCount)
+            msgCount = data.msgCount;
+        if (data.wordCount)
+            wordCount = data.wordCount;
+    }
 }
 
 function errorData(error) {
@@ -91,18 +96,18 @@ function filterAndSplit(string) {
 client.on('message', message => {
     if (message.author.username == "IRC-Bridge") {
         const regex = /<(.*)>/;
-        var username = regex.exec(message.content.split(' ')[0])[1];
-        var content = message.content.replace(regex, '').substring(1);
-    }
-    else {
-        var username = message.author.username;
-        var content = message.content;
-    }
-
-    if (!message.author.bot) {
+        const username = regex.exec(message.content.split(' ')[0])[1];
+        const content = message.content.replace(regex, '').substring(1);
         upMsgCount(username);
         upCharCount(username, content);
         upWordCount(content);
+    }
+    else {
+        if (!message.author.bot) {
+            upMsgCount(message.author.username);
+            upCharCount(message.author.username, message.content);
+            upWordCount(message.content);
+        }
     }
 });
 
