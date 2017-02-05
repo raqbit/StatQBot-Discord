@@ -9,12 +9,10 @@
     "start": "node bot.js"
   },
   "dependencies": {
-    "bufferutil": "^2.0.0",
     "discord.js": "^11.0.0",
     "erlpack": "hammerandchisel/erlpack",
     "firebase-admin": "^4.1.0",
     "linkify-it": "^2.0.3",
     "tlds": "^1.182.0",
-    "uws": "^0.12.0"
   }
 }
