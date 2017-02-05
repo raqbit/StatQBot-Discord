@@ -88,7 +88,7 @@ function filterAndSplit(string) {
         }
     }
 
-    string = string.replace(/[.,\/#!\?$%\^&\*;:{}=\-_`~()]/g, '').replace(/<@.{0,32}>/, '').replace(/\s{2,}/g, " ").toLowerCase();
+    string = string.replace(/[.,\/\\#!\?$%\^&\*;:"{}=\-_`~()]/g, '').replace(/<@.{0,32}>/, '').replace(/\s{2,}/g, " ").toLowerCase();
     const wordList = string.split(' ').filter(Boolean);
     return wordList;
 }
