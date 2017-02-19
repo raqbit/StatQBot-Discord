@@ -97,8 +97,8 @@ function isIRCBot(nick) {
     const nicks = ['CaveMan', 'Maunz', 'Geffy', 'RaqbotX'];
     nicks.forEach(botnick => {
         if (botnick == nick)
-            console.log(nick);
-        return true;
+            return true;
+
     });
     return false;
 }
