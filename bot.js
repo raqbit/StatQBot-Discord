@@ -93,14 +93,27 @@ function filterAndSplit(string) {
     return wordList;
 }
 
+function isIRCBot(nick) {
+    const nicks = ['CaveMan', 'Maunz', 'Geffy', 'RaqbotX'];
+    nicks.forEach(botnick => {
+        if (botnick == nick)
+            console.log(nick);
+        return true;
+    });
+    return false;
+}
+
 client.on('message', message => {
     if (message.author.username == "IRC-Bridge") {
         const regex = /<(.*)>/;
         const username = regex.exec(message.content.split(' ')[0])[1];
-        const content = message.content.replace(regex, '').substring(1);
-        upMsgCount(username);
-        upCharCount(username, content);
-        upWordCount(content);
+
+        if (!isIRCBot(username)) {
+            const content = message.content.replace(regex, '').substring(1);
+            upMsgCount(username);
+            upCharCount(username, content);
+            upWordCount(content);
+        }
     }
     else {
         if (!message.author.bot) {

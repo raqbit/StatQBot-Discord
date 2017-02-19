@@ -13,6 +13,6 @@
     "erlpack": "hammerandchisel/erlpack",
     "firebase-admin": "^4.1.0",
     "linkify-it": "^2.0.3",
-    "tlds": "^1.182.0",
+    "tlds": "^1.182.0"
   }
 }
