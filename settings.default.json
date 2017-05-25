@@ -1,4 +1,4 @@
 {
-    // Development mode
-    "dev": false
+    "dev": false,
+    "dbURL": ""
 }
