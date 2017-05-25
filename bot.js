@@ -1,7 +1,7 @@
 const linkify = require('linkify-it')();
+var crypto = require('crypto');
 
-linkify
-    .tlds(require('tlds'));
+linkify.tlds(require('tlds'));
 
 const admin = require('firebase-admin');
 const serviceAccount = require('./priv/serviceAccountKey.json');
@@ -11,23 +11,20 @@ admin.initializeApp({
     databaseURL: "https://mancave-statistics.firebaseio.com"
 });
 
-var charCount = {};
-var msgCount = {};
-var wordCount = {};
+const database = admin.database();
+const dbRef = database.ref('/');
+dbRef.on('value', gotData, errorData);
 
-const db = admin.database();
-const dbRef = db.ref();
-dbRef.on("value", gotData, errorData);
+let charCount = {};
+let msgCount = {};
+let wordCount = {};
 
 function gotData(snapshot) {
     var data = snapshot.val();
     if (data) {
-        if (data.charCount)
-            charCount = data.charCount;
-        if (data.msgCount)
-            msgCount = data.msgCount;
-        if (data.wordCount)
-            wordCount = data.wordCount;
+        charCount = data.charCount || {};
+        msgCount = data.msgCount || {};
+        wordCount = data.wordCount || {};
     }
 }
 
@@ -38,6 +35,16 @@ function errorData(error) {
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const discordKey = require('./priv/discordKey.json');
+
+client.on('message', message => {
+    if (!message.author.bot) {
+        upMsgCount(message.author.username);
+        upCharCount(message.author.username, message.content);
+        upWordCount(message.content);
+    }
+});
+
+client.login(discordKey.key);
 
 function upMsgCount(username) {
     if (msgCount[username]) {
@@ -65,18 +72,22 @@ function upCharCount(username, msg) {
 function upWordCount(msg) {
     const wordList = filterAndSplit(msg);
 
-    wordList.forEach(function (word) {
-        if (wordCount[word]) {
-            wordCount[word]++;
+    wordList.forEach((word) => {
+        if (word === "") {
+            return;
         }
-        else {
-            wordCount[word] = 1;
+        const id = seededID(word);
+        if (wordCount[id]) {
+            wordCount[id].score++;
+        } else {
+            wordCount[id] = {};
+            wordCount[id].score = 1;
+            wordCount[id].word = word;
         }
     });
 
     const wordCountRef = dbRef.child('wordCount');
     wordCountRef.set(wordCount);
-
 }
 
 function filterAndSplit(string) {
@@ -88,40 +99,15 @@ function filterAndSplit(string) {
         }
     }
 
-    string = string.replace(/[.,\/\\#!\?$%\^&\*;:"{}=\-_`~()]/g, '').replace(/<@.{0,32}>/, '').replace(/\s{2,}/g, " ").toLowerCase();
-    const wordList = string.split(' ').filter(Boolean);
+    string = string
+        .replace(/[.,\/\\#!\?$%\^&\*;:"{}=\-_`~()]/g, '')
+        .replace(/<@.{0,32}>/, '')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/'.*'/g, '$1').toLowerCase();
+    const wordList = string.split(' ');
     return wordList;
 }
 
-function isIRCBot(nick) {
-    const nicks = ['CaveMan', 'Maunz', 'Geffy', 'RaqbotX'];
-    nicks.forEach(botnick => {
-        if (botnick == nick)
-            return true;
-
-    });
-    return false;
+function seededID(seed) {
+    return crypto.createHash('md5').update(seed).digest('hex');
 }
-
-client.on('message', message => {
-    if (message.author.username == "IRC-Bridge") {
-        const regex = /<(.*)>/;
-        const username = regex.exec(message.content.split(' ')[0])[1];
-
-        if (!isIRCBot(username)) {
-            const content = message.content.replace(regex, '').substring(1);
-            upMsgCount(username);
-            upCharCount(username, content);
-            upWordCount(content);
-        }
-    }
-    else {
-        if (!message.author.bot) {
-            upMsgCount(message.author.username);
-            upCharCount(message.author.username, message.content);
-            upWordCount(message.content);
-        }
-    }
-});
-
-client.login(discordKey.key);
