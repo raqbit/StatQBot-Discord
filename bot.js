@@ -113,7 +113,7 @@ function upWordCount(msg) {
     const wordList = filterAndSplit(msg);
 
     wordList.forEach((word) => {
-        if (word === '' || word.length < 4) {
+        if (word === '') {
             return;
         }
         const id = crypto.createHash('md5').update(word).digest('hex');
